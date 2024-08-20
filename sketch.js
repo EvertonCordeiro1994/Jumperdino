@@ -3,10 +3,9 @@ let cont = 0;
 let dinoPositionX = 10, dinoPositionY = 408;
 let dinoWidth = 180, dinoHeight = 180;
 let move = 'walk';
-let floor;
+let floor,bg,rock,tree,jumpStartTime,assinatura;
 
 const jumpFrames = 12, jumpDuration = 0.9, jumpHeight = 200; 
-let jumpStartTime;
 
 function preload() {
   for (let i = 1; i <= 10; i++) {
@@ -23,49 +22,11 @@ function preload() {
   }
 
   floor = loadImage('images/cenario/floor.jpg');
-}
-
-function setup() {
-  createCanvas(window.innerWidth, window.innerHeight);
-  frameRate(15); 
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'ArrowUp' && move !== 'jump') {
-      startJump();
-    }
-  });
-
-  document.addEventListener('touchstart', function(event) {
-    if (move !== 'jump') {
-      startJump();
-    }
-  });
-}
-
-function startJump() {
-  move = 'jump';
-  jumpStartTime = millis();
-}
-
-function draw() {
-  background('black');
-
-  if (move === 'walk') {
-    cont = (cont + 1) % walk.length;
-    image(walk[cont], dinoPositionX, dinoPositionY, dinoWidth, dinoHeight);
-  } else if (move === 'jump') {
-    handleJump();
-  }
-
-  fill('white');
-  text(`${cont}`, 50, 50);
-
-  fill('red');
-  text(`${window.innerWidth}`, 150, 50);
-  fill('green');
-  text(`${window.innerHeight}`, 250, 50);
-
-  drawFloor();
+  bg = loadImage('images/cenario/bg-02.jpg');
+  rock = loadImage('images/cenario/obstaculos/rock.webp')
+  tree = loadImage('images/cenario/obstaculos/tree.png')
+  assinatura =  loadImage('images/assinatura.png')
+  
 }
 
 function handleJump() {
@@ -88,4 +49,50 @@ function drawFloor() {
   for (let i = 0; i < window.innerWidth; i += 80) {
     image(floor, i, 570, 80, 100);
   }
+}
+
+function startJump() {
+  move = 'jump';
+  jumpStartTime = millis();
+}
+
+function setup() {
+  createCanvas(window.innerWidth, window.innerHeight);
+  frameRate(15); 
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'ArrowUp' && move !== 'jump') {
+      startJump();
+    }
+  });
+
+  document.addEventListener('touchstart', function(event) {
+    if (move !== 'jump') {
+      startJump();
+    }
+  });
+}
+
+function draw() {
+  background('black');
+  image(bg,0,0,1400, window.innerHeight+120)
+  image(assinatura, window.innerWidth - 300, 15,250,20 )
+
+  if (move === 'walk') {
+    cont = (cont + 1) % walk.length;
+    image(walk[cont], dinoPositionX, dinoPositionY, dinoWidth, dinoHeight);
+  } else if (move === 'jump') {
+    handleJump();
+  }
+
+
+  fill('white');
+  text(`${cont}`, 50, 50);
+
+  fill('red');
+  text(`${window.innerWidth}`, 150, 50);
+  fill('green');
+  text(`${window.innerHeight}`, 250, 50);
+
+  drawFloor();
 }
