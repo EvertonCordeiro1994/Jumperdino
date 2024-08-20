@@ -5,8 +5,8 @@ let dinoWidth = 180, dinoHeight = 180;
 let move = 'walk';
 let floor;
 
-let jumpFrames = 12, jumpDuration = 0.9, jumpHeight = 200, jumpStartTime; 
-
+const jumpFrames = 12, jumpDuration = 0.9, jumpHeight = 200; 
+let jumpStartTime;
 
 function preload() {
   for (let i = 1; i <= 10; i++) {
@@ -22,7 +22,7 @@ function preload() {
     dead.push(loadImage(`images/dino/dead/dead(${i}).png`));
   }
 
-  floor = loadImage('images/cenario/floor.jpg')
+  floor = loadImage('images/cenario/floor.jpg');
 }
 
 function setup() {
@@ -31,10 +31,20 @@ function setup() {
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'ArrowUp' && move !== 'jump') {
-      move = 'jump';
-      jumpStartTime = millis();
+      startJump();
     }
   });
+
+  document.addEventListener('touchstart', function(event) {
+    if (move !== 'jump') {
+      startJump();
+    }
+  });
+}
+
+function startJump() {
+  move = 'jump';
+  jumpStartTime = millis();
 }
 
 function draw() {
@@ -44,19 +54,7 @@ function draw() {
     cont = (cont + 1) % walk.length;
     image(walk[cont], dinoPositionX, dinoPositionY, dinoWidth, dinoHeight);
   } else if (move === 'jump') {
-    let elapsedTime = (millis() - jumpStartTime) / 1000; 
-    let progress = elapsedTime / jumpDuration; 
-    let jumpProgress = Math.sin(progress * Math.PI); 
-
-    dinoPositionY = 408 - (jumpHeight * jumpProgress);
-
-    let jumpFrame = Math.floor((elapsedTime / jumpDuration) * jumpFrames) % jumpFrames;
-    image(jump[jumpFrame], dinoPositionX, dinoPositionY, dinoWidth, dinoHeight);
-
-    if (progress >= 1) {
-      move = 'walk';
-      dinoPositionY = 408; 
-    }
+    handleJump();
   }
 
   fill('white');
@@ -67,8 +65,27 @@ function draw() {
   fill('green');
   text(`${window.innerHeight}`, 250, 50);
 
+  drawFloor();
+}
 
-  for (let i = 0; i <= window.innerWidth; i += 80) {
+function handleJump() {
+  let elapsedTime = (millis() - jumpStartTime) / 1000; 
+  let progress = elapsedTime / jumpDuration; 
+  let jumpProgress = Math.sin(progress * Math.PI); 
+
+  dinoPositionY = 408 - (jumpHeight * jumpProgress);
+
+  let jumpFrame = Math.floor((elapsedTime / jumpDuration) * jumpFrames) % jumpFrames;
+  image(jump[jumpFrame], dinoPositionX, dinoPositionY, dinoWidth, dinoHeight);
+
+  if (progress >= 1) {
+    move = 'walk';
+    dinoPositionY = 408; 
+  }
+}
+
+function drawFloor() {
+  for (let i = 0; i < window.innerWidth; i += 80) {
     image(floor, i, 570, 80, 100);
   }
 }
