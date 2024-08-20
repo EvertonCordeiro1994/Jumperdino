@@ -48,14 +48,14 @@ function draw() {
     let progress = elapsedTime / jumpDuration; 
     let jumpProgress = Math.sin(progress * Math.PI); 
 
-    dinoPositionY = 470 - (jumpHeight * jumpProgress);
+    dinoPositionY = 408 - (jumpHeight * jumpProgress);
 
     let jumpFrame = Math.floor((elapsedTime / jumpDuration) * jumpFrames) % jumpFrames;
     image(jump[jumpFrame], dinoPositionX, dinoPositionY, dinoWidth, dinoHeight);
 
     if (progress >= 1) {
       move = 'walk';
-      dinoPositionY = 470; 
+      dinoPositionY = 408; 
     }
   }
 
