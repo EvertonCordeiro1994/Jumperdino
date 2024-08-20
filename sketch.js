@@ -1,6 +1,6 @@
 let walk = [], run = [], jump = [], dead = [];
-let cont = 0;
-let dinoPositionX = 10, dinoPositionY = 408;
+let cont = 0, deslocamento = 0;
+let dinoPositionX = 50, dinoPositionY = 408;
 let dinoWidth = 180, dinoHeight = 180;
 let move = 'walk';
 let floor,bg,rock,tree,jumpStartTime,assinatura;
@@ -51,6 +51,13 @@ function drawFloor() {
   }
 }
 
+function drawTree(deslocamento){
+  image(tree,window.innerWidth - deslocamento,408,60,180)
+}
+function drawRock(deslocamento){
+  image(rock,window.innerWidth - deslocamento,516,80,80)
+}
+
 function startJump() {
   move = 'jump';
   jumpStartTime = millis();
@@ -74,6 +81,8 @@ function setup() {
 }
 
 function draw() {
+  deslocamento += 10
+
   background('black');
   image(bg,0,0,1400, window.innerHeight+120)
   image(assinatura, window.innerWidth - 300, 15,250,20 )
@@ -93,6 +102,9 @@ function draw() {
   text(`${window.innerWidth}`, 150, 50);
   fill('green');
   text(`${window.innerHeight}`, 250, 50);
+
+  drawTree(deslocamento)
+  drawRock(deslocamento)
 
   drawFloor();
 }
