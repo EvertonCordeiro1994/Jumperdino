@@ -1,5 +1,16 @@
-let cont = 0, score = 0, velocidade = 10, deslocamentoRock01 = 0, deslocamentoRock02 = 0
+let cont = 0, score = 0, jumpStartTime = 0, velocidade = 10
+
 let walk = [], run = [], jump = [], dead = []
+
+const deslocamento = {
+  pedra_01: 0,
+  pedra_02: 240
+}
+
+const tela = {
+  width: window.innerWidth,
+  height: window.innerHeight
+}
 
 const dino = {
   xPos: 50,
@@ -11,7 +22,7 @@ const dino = {
 
 const rock = {
   img: null,
-  xPos: window.innerWidth - 150,
+  xPos: tela.width - 150,
   yPos: 500,
   width: 80,
   height: 80
@@ -30,12 +41,12 @@ const fundo = {
   xPos: 0,
   yPos: 0,
   width: 1400,
-  height: window.innerHeight + 120
+  height: tela.height + 150
 }
 
 const assinatura = {
   img: null,
-  xPos: window.innerWidth - 300,
+  xPos: tela.width - 300,
   yPos: 15,
   width: 250,
   height: 20
@@ -46,9 +57,6 @@ const pulo = {
   duracao: 0.9,
   altura: 100
 }
-
-let move = 'walk'
-let jumpStartTime = 0
 
 function preload() {
   for (let i = 1; i <= 10; i++) {
@@ -74,92 +82,93 @@ function handleJump() {
   const elapsedTime = (millis() - jumpStartTime) / 1000
   const progress = elapsedTime / pulo.duracao
   const jumpProgress = Math.sin(progress * Math.PI)
-  
+
   dino.yPos = 410 - (pulo.altura * jumpProgress)
 
   const jumpFrame = Math.floor(progress * pulo.frames) % pulo.frames
   image(jump[jumpFrame], dino.xPos, dino.yPos, dino.width, dino.height)
 
   if (progress >= 1) {
-    move = 'walk'
+    dino.move = 'walk'
     dino.yPos = 410
   }
 }
 
 function drawFloor() {
-  for (let i = 0; i < window.innerWidth; i += 80) {
+  for (let i = 0; i < tela.width; i += chao.width) {
     image(chao.img, i, chao.yPos, chao.width, chao.height)
   }
 }
 
-function drawRock(xPos) {
-  image(rock.img, xPos, rock.yPos, rock.width, rock.height)
-}
 
 function startJump() {
-  move = 'jump'
+  dino.move = 'jump'
   jumpStartTime = millis()
 }
 
 function setup() {
-  createCanvas(window.innerWidth, window.innerHeight)
+  createCanvas(tela.width, tela.height)
   frameRate(15)
 
   document.addEventListener('keydown', function (event) {
-    if ((event.key === 'ArrowUp' || event.key === ' ') && move !== 'jump') {
+    if ((event.key === 'ArrowUp' || event.key === ' ') && dino.move !== 'jump') {
       startJump()
     }
   })
 
   document.addEventListener('touchstart', function () {
-    if (move !== 'jump') {
+    if (dino.move !== 'jump') {
       startJump()
     }
   })
-}   
-
-function checkCollision(xPos , yPos) {
-  return (
-    dino.xPos == xPos + rock.width &&
-    dino.xPos + dino.width == xPos &&
-    dino.yPos + dino.height == yPos &&
-    dino.yPos == yPos + rock.height
-  )
 }
 
-function draw() {
-  deslocamentoRock01 += velocidade
-  deslocamentoRock02 += velocidade
+function gerarPedras() {
+  image(rock.img, (tela.width - deslocamento.pedra_01), rock.yPos, rock.width, rock.height)
+  image(rock.img, (tela.width - deslocamento.pedra_02), rock.yPos, rock.width, rock.height)
 
-  background('black')
+  if (tela.width - deslocamento.pedra_01 <= -rock.width) {
+    deslocamento.pedra_01 = Math.floor(Math.random() * 200) - tela.width
+  }
 
-  image(fundo.img, fundo.xPos, fundo.yPos, fundo.width, fundo.height)
-  image(assinatura.img, assinatura.xPos, assinatura.yPos, assinatura.width, assinatura.height)
-  
-  fill('white')
-  text(`Score: ${score}`, 50, 50)
+  if (tela.width - deslocamento.pedra_02 <= -rock.width) {
+    deslocamento.pedra_02 = Math.floor(Math.random() * 200) - tela.width
+  }
+}
 
-  if (move === 'walk') {
-    cont = (cont + 1) % walk.length
-    image(walk[cont], dino.xPos, dino.yPos, dino.width, dino.height)
-  } else if (move === 'jump') {
+function movimentoDino(m) {
+  const setMove = [walk, jump, dead, run]
+
+  if (dino.move === 'walk') {
+    cont = (cont + 1) % setMove[m].length
+    image((setMove[m])[cont], dino.xPos, dino.yPos, dino.width, dino.height)
+  } else if (dino.move === 'jump') {
     handleJump()
   }
+}
 
-  drawRock(window.innerWidth - deslocamentoRock01)
-  drawRock(window.innerWidth - deslocamentoRock02)
+const telaDeFundo = () => {
+  image(fundo.img, fundo.xPos, fundo.yPos, fundo.width, fundo.height)
+}
 
-  if (window.innerWidth - deslocamentoRock01 <= -rock.width) {
-    deslocamentoRock01 = Math.floor(Math.random() * 200) - window.innerWidth
-  }
-
-  if (window.innerWidth - deslocamentoRock02 <= -rock.width) {
-    deslocamentoRock02 = Math.floor(Math.random() * 200) - window.innerWidth
-    
-  }
-
+const header = () => {
+  fill('black')
+  text(`Score: ${score}`, 20, 30)
+  image(assinatura.img, assinatura.xPos, assinatura.yPos, assinatura.width, assinatura.height)
+}
 
 
 
+function draw() {
+
+  deslocamento.pedra_01 += velocidade
+  deslocamento.pedra_02 += velocidade
+
+  telaDeFundo()
+  header()
+
+  movimentoDino(0)
+  gerarPedras()
   drawFloor()
+
 }
